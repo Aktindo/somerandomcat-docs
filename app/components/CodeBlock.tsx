@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Copy, Check } from "lucide-react";
 
 export default function CodeBlock({ code, lang = "javascript", showCopy = true }: { code: string; lang?: string; showCopy?: boolean }) {
   const [copied, setCopied] = useState(false);
@@ -23,11 +24,14 @@ export default function CodeBlock({ code, lang = "javascript", showCopy = true }
         <div className="flex items-center gap-3">
           <span className="font-mono text-[10px] uppercase tracking-widest" style={{ color: "var(--subtle)" }}>{lang}</span>
           {showCopy && (
-            <button onClick={copy} className="font-mono text-[10px] px-2 py-0.5 rounded-md transition-all duration-150"
+            <button
+              onClick={copy}
+              className="flex items-center gap-1 font-mono text-[10px] px-2 py-0.5 rounded-md transition-all duration-150"
               style={{ background: "transparent", border: "none", cursor: "pointer", color: copied ? "var(--green)" : "var(--subtle)" }}
               onMouseEnter={e => { if (!copied) (e.currentTarget as HTMLElement).style.color = "var(--violet2)"; }}
-              onMouseLeave={e => { if (!copied) (e.currentTarget as HTMLElement).style.color = "var(--subtle)"; }}>
-              {copied ? "copied ✓" : "copy"}
+              onMouseLeave={e => { if (!copied) (e.currentTarget as HTMLElement).style.color = "var(--subtle)"; }}
+            >
+              {copied ? <><Check size={11} />copied</> : <><Copy size={11} />copy</>}
             </button>
           )}
         </div>
