@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 import { Button, Card, Chip, Separator, ScrollShadow } from "@heroui/react";
+import {
+  BookOpen, Braces, Shuffle, Key, Wrench, Package, GitFork,
+  Layers, FileCode2, Zap, Globe, Menu, X, Terminal, Scale,
+  Rocket, Copy, Check, ArrowUpRight
+} from "lucide-react";
 import CodeBlock from "./components/CodeBlock";
 import { navSections, interfaces, randomMethods, generationMethods, utilMethods } from "./data";
 
@@ -15,11 +20,34 @@ const RETURN_COLORS: Record<string, string> = {
   "@static": "rgba(124,111,255,0.12)",
 };
 
+const NAV_ICONS: Record<string, React.ReactNode> = {
+  "getting-started": <Rocket size={14} />,
+  "interfaces":      <Braces size={14} />,
+  "random":          <Shuffle size={14} />,
+  "generation":      <Key size={14} />,
+  "util":            <Wrench size={14} />,
+  "npm":             <Package size={14} />,
+  "github":          <GitFork size={14} />,
+};
+
+const CLASS_ICONS: Record<string, React.ReactNode> = {
+  "🎲": <Shuffle size={20} />,
+  "🔑": <Key size={20} />,
+  "🛠️": <Wrench size={20} />,
+};
+
+const FEATURE_ICONS: Record<string, React.ReactNode> = {
+  "🏗️": <Layers size={22} />,
+  "🔷": <FileCode2 size={22} />,
+  "⚡": <Zap size={22} />,
+  "🌐": <Globe size={22} />,
+};
+
 function SectionHeader({ tag, title, desc }: { tag: string; title: string; desc: string }) {
   return (
     <div className="mb-10">
       <Chip size="sm" variant="soft" color="accent" className="mb-4 font-mono text-[10px] uppercase tracking-[0.12em]">{tag}</Chip>
-      <h2 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: "2rem", fontWeight: 800, letterSpacing: "-0.04em", color: "var(--text)", marginBottom: "10px" }}>{title}</h2>
+      <h2 style={{ fontFamily: "Montserrat, sans-serif", fontSize: "2rem", fontWeight: 800, letterSpacing: "-0.04em", color: "var(--text)", marginBottom: "10px" }}>{title}</h2>
       <p style={{ color: "var(--muted)", fontSize: "14px", maxWidth: "560px", lineHeight: 1.8 }}>{desc}</p>
     </div>
   );
@@ -73,10 +101,12 @@ function ClassSection({ icon, name, desc, tags, methods }: { icon: string; name:
   return (
     <div className="rounded-2xl overflow-hidden mb-8 fade-up" style={{ background: "var(--bg2)", border: "1px solid var(--border2)" }}>
       {/* class header */}
-      <div className="px-6 py-5 flex items-start gap-4" style={{ background: "linear-gradient(135deg, rgba(124,111,255,0.06) 0%, rgba(167,139,250,0.03) 100%)", borderBottom: "1px solid var(--border)" }}>
-        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style={{ background: "rgba(124,111,255,0.12)" }}>{icon}</div>
+      <div className="px-6 py-5 flex items-start gap-4" style={{ background: "rgba(124,111,255,0.06)", borderBottom: "1px solid var(--border)" }}>
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(124,111,255,0.12)", color: "var(--violet2)" }}>
+          {CLASS_ICONS[icon] ?? icon}
+        </div>
         <div>
-          <h3 className="font-bold text-lg mb-1" style={{ fontFamily: "Plus Jakarta Sans, sans-serif", color: "var(--text)" }}>{name}</h3>
+          <h3 className="font-bold text-lg mb-1" style={{ fontFamily: "Montserrat, sans-serif", color: "var(--text)" }}>{name}</h3>
           <p className="text-[13px] mb-2.5" style={{ color: "var(--muted)" }}>{desc}</p>
           <div className="flex gap-1.5 flex-wrap">
             {tags.map(t => (
@@ -121,9 +151,9 @@ export default function Home() {
         {/* wordmark */}
         <div className="px-5 py-6" style={{ borderBottom: "1px solid var(--border)" }}>
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg" style={{ background: "linear-gradient(135deg, #7c6fff 0%, #f472b6 100%)" }}>🐱</div>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "var(--violet)", color: "#fff" }}>🐱</div>
             <div>
-              <p className="text-[13.5px] font-bold tracking-tight" style={{ fontFamily: "Plus Jakarta Sans, sans-serif", color: "var(--text)" }}>some-random-cat</p>
+              <p className="text-[13.5px] font-bold tracking-tight" style={{ fontFamily: "Montserrat, sans-serif", color: "var(--text)" }}>some-random-cat</p>
               <span className="font-mono text-[10px] px-1.5 py-0.5 rounded-md" style={{ background: "rgba(124,111,255,0.12)", color: "var(--violet2)" }}>v2.4.0</span>
             </div>
           </div>
@@ -141,7 +171,8 @@ export default function Home() {
                     <a key={item.id} href={item.href} target="_blank" rel="noopener noreferrer" className="no-underline flex items-center gap-2 px-3 py-2 rounded-xl text-[13px] transition-all duration-150 mb-0.5" style={{ color: "var(--muted)" }}
                       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(124,111,255,0.07)"; (e.currentTarget as HTMLElement).style.color = "var(--text)"; }}
                       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "var(--muted)"; }}>
-                      {item.label}
+                      <span className="flex-shrink-0 opacity-60">{NAV_ICONS[item.id] ?? null}</span>
+                      <span className="flex-1">{item.label}</span>
                     </a>
                   );
                 }
@@ -154,8 +185,9 @@ export default function Home() {
                       border: "none", cursor: "pointer",
                       fontWeight: isActive ? 600 : 400,
                     }}>
-                    <span className="w-1 h-1 rounded-full flex-shrink-0 transition-all duration-150"
-                      style={{ background: isActive ? "var(--violet)" : "var(--subtle)", transform: isActive ? "scale(1.5)" : "scale(1)" }} />
+                    <span className="flex-shrink-0 transition-all duration-150" style={{ opacity: isActive ? 1 : 0.5 }}>
+                      {NAV_ICONS[item.id] ?? null}
+                    </span>
                     <span className="flex-1">{item.label}</span>
                     {"chip" in item && item.chip && (
                       <span className="font-mono text-[9px] px-1.5 py-0.5 rounded-md"
@@ -174,7 +206,10 @@ export default function Home() {
 
         {/* sidebar footer */}
         <div className="px-5 py-4 flex items-center justify-between" style={{ borderTop: "1px solid var(--border)" }}>
-          <span className="font-mono text-[11px]" style={{ color: "var(--subtle)" }}>ISC · Aktindo</span>
+          <div className="flex items-center gap-1.5">
+            <Scale size={12} style={{ color: "var(--subtle)" }} />
+            <span className="font-mono text-[11px]" style={{ color: "var(--subtle)" }}>ISC · Aktindo</span>
+          </div>
           <div className="w-2 h-2 rounded-full" style={{ background: "var(--green)", boxShadow: "0 0 6px var(--green)" }} title="Latest" />
         </div>
       </aside>
@@ -188,18 +223,15 @@ export default function Home() {
         <div className="md:hidden flex items-center justify-between px-5 py-3.5 sticky top-0 z-20" style={{ background: "rgba(13,13,20,0.9)", borderBottom: "1px solid var(--border)", backdropFilter: "blur(12px)" }}>
           <div className="flex items-center gap-2">
             <span>🐱</span>
-            <span className="font-bold text-sm" style={{ color: "var(--text)" }}>some-random-cat</span>
+            <span className="font-bold text-sm" style={{ fontFamily: "Montserrat, sans-serif", color: "var(--text)" }}>some-random-cat</span>
           </div>
-          <Button size="sm" variant="outline" onClick={() => setMobileOpen(true)}>Menu</Button>
+          <button onClick={() => setMobileOpen(true)} style={{ background: "rgba(124,111,255,0.1)", border: "1px solid rgba(124,111,255,0.2)", color: "var(--violet2)", borderRadius: "10px", padding: "6px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}>
+            <Menu size={15} /><span className="text-[12px] font-mono">Menu</span>
+          </button>
         </div>
 
         {/* ── HERO ── */}
         <div className="relative px-8 md:px-16 py-24 overflow-hidden" style={{ borderBottom: "1px solid var(--border)" }}>
-          {/* dot grid bg */}
-          <div className="dot-grid absolute inset-0 opacity-40 pointer-events-none" />
-          {/* glow blobs */}
-          <div className="absolute top-0 left-1/3 w-96 h-64 rounded-full pointer-events-none" style={{ background: "radial-gradient(ellipse, rgba(124,111,255,0.12) 0%, transparent 70%)", filter: "blur(40px)" }} />
-          <div className="absolute bottom-0 right-1/4 w-80 h-48 rounded-full pointer-events-none" style={{ background: "radial-gradient(ellipse, rgba(244,114,182,0.09) 0%, transparent 70%)", filter: "blur(40px)" }} />
 
           <div className="relative">
             <div className="flex items-center gap-2.5 mb-6">
@@ -207,8 +239,8 @@ export default function Home() {
               <span className="font-mono text-[11px] px-2.5 py-1 rounded-full" style={{ background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.2)", color: "var(--green)" }}>v2.4.0 stable</span>
             </div>
 
-            <h1 style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: "clamp(38px, 6vw, 64px)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.05, color: "var(--text)", marginBottom: "20px" }}>
-              some-random-<span style={{ background: "linear-gradient(135deg, #7c6fff, #f472b6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>cat</span>
+            <h1 style={{ fontFamily: "Montserrat, sans-serif", fontSize: "clamp(38px, 6vw, 64px)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.05, color: "var(--text)", marginBottom: "20px" }}>
+              some-random-<span style={{ color: "var(--violet2)" }}>cat</span>
             </h1>
 
             <p style={{ color: "var(--muted)", fontSize: "15px", maxWidth: "480px", lineHeight: 1.85, marginBottom: "36px" }}>
@@ -230,13 +262,16 @@ export default function Home() {
 
         {/* ── INSTALL STRIP ── */}
         <div className="mx-8 md:mx-16 my-8 rounded-2xl px-5 py-3.5 flex items-center gap-4" style={{ background: "var(--bg2)", border: "1px solid var(--border2)" }}>
-          <span className="font-mono text-[10px] px-2 py-1 rounded-lg flex-shrink-0" style={{ background: "rgba(74,222,128,0.08)", color: "var(--green)", border: "1px solid rgba(74,222,128,0.15)" }}>install</span>
+          <div className="flex items-center gap-1.5 flex-shrink-0 px-2 py-1 rounded-lg" style={{ background: "rgba(74,222,128,0.08)", color: "var(--green)", border: "1px solid rgba(74,222,128,0.15)" }}>
+            <Terminal size={12} />
+            <span className="font-mono text-[10px]">install</span>
+          </div>
           <code className="text-[13px] flex-1 font-mono" style={{ color: "var(--text)" }}>
             <span style={{ color: "var(--subtle)" }}>$</span>&nbsp;npm install some-random-cat
           </code>
           <button
             onClick={copyInstall}
-            className="font-mono text-[11px] px-3 py-1.5 rounded-lg transition-all duration-200 flex-shrink-0"
+            className="font-mono text-[11px] px-3 py-1.5 rounded-lg transition-all duration-200 flex-shrink-0 flex items-center gap-1.5"
             style={{
               background: installCopied ? "rgba(74,222,128,0.1)" : "rgba(124,111,255,0.1)",
               border: `1px solid ${installCopied ? "rgba(74,222,128,0.25)" : "rgba(124,111,255,0.2)"}`,
@@ -244,7 +279,7 @@ export default function Home() {
               cursor: "pointer",
             }}
           >
-            {installCopied ? "Copied ✓" : "Copy"}
+            {installCopied ? <><Check size={12} />Copied</> : <><Copy size={12} />Copy</>}
           </button>
         </div>
 
@@ -280,13 +315,13 @@ export default function Home() {
               <p className="font-bold text-sm mt-8 mb-4" style={{ color: "var(--text)" }}>What's included</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 {[
-                  { icon: "🏗️", title: "Object-Oriented", text: "Three focused static classes — Random, Generation, Util.", color: "rgba(124,111,255,0.08)", border: "rgba(124,111,255,0.15)" },
-                  { icon: "🔷", title: "TypeScript-First", text: "Ships with full type declarations and exported interfaces.", color: "rgba(56,189,248,0.06)", border: "rgba(56,189,248,0.15)" },
-                  { icon: "⚡", title: "Promise-Based", text: "Async methods return typed Promises, plays well with await.", color: "rgba(244,114,182,0.06)", border: "rgba(244,114,182,0.15)" },
-                  { icon: "🌐", title: "Multi-API", text: "Cat API, dog.ceo, AdviceSlip — all in one interface.", color: "rgba(74,222,128,0.06)", border: "rgba(74,222,128,0.15)" },
+                  { icon: "🏗️", title: "Object-Oriented", text: "Three focused static classes — Random, Generation, Util.", color: "rgba(124,111,255,0.08)", border: "rgba(124,111,255,0.15)", iconColor: "var(--violet2)" },
+                  { icon: "🔷", title: "TypeScript-First", text: "Ships with full type declarations and exported interfaces.", color: "rgba(56,189,248,0.06)", border: "rgba(56,189,248,0.15)", iconColor: "var(--sky)" },
+                  { icon: "⚡", title: "Promise-Based", text: "Async methods return typed Promises, plays well with await.", color: "rgba(244,114,182,0.06)", border: "rgba(244,114,182,0.15)", iconColor: "var(--pink)" },
+                  { icon: "🌐", title: "Multi-API", text: "Cat API, dog.ceo, AdviceSlip — all in one interface.", color: "rgba(74,222,128,0.06)", border: "rgba(74,222,128,0.15)", iconColor: "var(--green)" },
                 ].map((f, i) => (
                   <div key={f.title} className="rounded-2xl p-5 fade-up" style={{ background: f.color, border: `1px solid ${f.border}`, animationDelay: `${i * 50}ms` }}>
-                    <div className="text-2xl mb-3">{f.icon}</div>
+                    <div className="mb-3" style={{ color: f.iconColor }}>{FEATURE_ICONS[f.icon]}</div>
                     <p className="font-semibold text-sm mb-1.5" style={{ color: "var(--text)" }}>{f.title}</p>
                     <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--muted)" }}>{f.text}</p>
                   </div>
@@ -349,13 +384,13 @@ export default function Home() {
           <div className="mx-8 md:mx-16 py-6 flex flex-wrap items-center justify-between gap-3">
             <span className="font-mono text-[12px]" style={{ color: "var(--subtle)" }}>some-random-cat · v2.4.0 · ISC License · Aktindo</span>
             <div className="flex gap-1.5">
-              {[["GitHub ↗","https://github.com/aktindo/some-random-cat"],["npm ↗","https://www.npmjs.com/package/some-random-cat"]].map(([l, h]) => (
+              {([[<GitFork size={13} />, "GitHub", "https://github.com/aktindo/some-random-cat"],[<Package size={13} />, "npm", "https://www.npmjs.com/package/some-random-cat"]] as [React.ReactNode, string, string][]).map(([icon, l, h]) => (
                 <a key={l} href={h} target="_blank" rel="noopener noreferrer"
-                  className="font-mono text-[12px] px-3 py-1.5 rounded-lg no-underline transition-all duration-150"
+                  className="font-mono text-[12px] px-3 py-1.5 rounded-lg no-underline transition-all duration-150 flex items-center gap-1.5"
                   style={{ color: "var(--muted)", background: "transparent" }}
                   onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(124,111,255,0.08)"; (e.currentTarget as HTMLElement).style.color = "var(--violet2)"; }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "var(--muted)"; }}>
-                  {l}
+                  {icon}{l} <ArrowUpRight size={11} />
                 </a>
               ))}
             </div>
