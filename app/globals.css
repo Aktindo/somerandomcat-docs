@@ -25,13 +25,13 @@
   --border-std: #2e2e3c;
 
   --text-primary:   #f0f0f5;
-  --text-secondary: #a0a0b8;
-  --text-muted:     #5a5a72;
+  --text-secondary: #c0c0d8;
+  --text-muted:     #7878a0;
 
   --syn-kw:  #a78bfa;
   --syn-fn:  #7dd3fc;
   --syn-str: #86efac;
-  --syn-cm:  #38384e;
+  --syn-cm:  #5a5a80;
 
   --accent:        #f5c400;
   --accent-hover:  #f0b800;

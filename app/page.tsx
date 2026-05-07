@@ -96,9 +96,9 @@ function FunctionIndex({ methods }: { methods: any[] }) {
               (e.currentTarget as HTMLButtonElement).style.color = "var(--syn-fn)";
             }}
           >
-            <span style={{ color: "var(--text-muted)", fontSize: "10px" }}>{m.modifier?.includes("async") ? "async" : m.modifier || "fn"}</span>
+            <span style={{ color: "var(--text-secondary)", fontSize: "10px", opacity: 0.8 }}>{m.modifier?.includes("async") ? "async" : m.modifier || "fn"}</span>
             {m.name}
-            <ChevronRight size={10} style={{ opacity: 0.4 }} />
+            <ChevronRight size={10} style={{ color: "var(--text-secondary)", opacity: 0.6 }} />
           </button>
         ))}
       </div>
@@ -113,12 +113,26 @@ function MethodBlock({ modifier, name, params, returns, desc, params_table, code
       {/* signature */}
       <div className="flex flex-wrap items-center gap-2 mb-3">
         {modifier && (
-          <Chip size="sm" variant="soft" color="accent" className="font-mono text-[10px]">{modifier}</Chip>
+          <span
+            className="font-mono text-[10px] px-2 py-0.5 rounded"
+            style={{
+              background: "rgba(255,255,255,0.07)",
+              color: "var(--text-secondary)",
+              border: "1px solid var(--border-std)",
+            }}
+          >{modifier}</span>
         )}
         <span style={{ fontFamily: "var(--font-code)", fontSize: "13.5px", fontWeight: 600, color: "var(--text-primary)" }}>{name}</span>
-        <span style={{ fontFamily: "var(--font-code)", fontSize: "12.5px", color: "var(--text-muted)" }}>{params}</span>
+        <span style={{ fontFamily: "var(--font-code)", fontSize: "12.5px", color: "var(--text-secondary)" }}>{params}</span>
         <ArrowRight size={11} style={{ color: "var(--border-std)" }} />
-        <Chip size="sm" variant="soft" color="success" className="font-mono text-[10px]">{returns}</Chip>
+        <span
+          className="font-mono text-[10px] px-2 py-0.5 rounded"
+          style={{
+            background: "rgba(134,239,172,0.12)",
+            color: "#86efac",
+            border: "1px solid rgba(134,239,172,0.2)",
+          }}
+        >{returns}</span>
       </div>
 
       {/* description */}
@@ -133,7 +147,7 @@ function MethodBlock({ modifier, name, params, returns, desc, params_table, code
               <tr style={{ background: "var(--surface-2)" }}>
                 {["Parameter", "Type", "Required", "Description"].map(h => (
                   <th key={h} className="text-left px-4 py-2.5 text-[11px] uppercase tracking-wider font-semibold"
-                    style={{ color: "var(--text-muted)", borderBottom: "1px solid var(--border-dim)", fontFamily: "var(--font-body)" }}>
+                    style={{ color: "var(--text-secondary)", borderBottom: "1px solid var(--border-dim)", fontFamily: "var(--font-body)" }}>
                     {h}
                   </th>
                 ))}
@@ -141,10 +155,10 @@ function MethodBlock({ modifier, name, params, returns, desc, params_table, code
             </thead>
             <tbody>
               {params_table.map((p: any, i: number) => (
-                <tr key={p.name} style={{ background: i % 2 !== 0 ? "var(--surface-2)" : "transparent", borderBottom: "1px solid var(--border-dim)" }}>
+                <tr key={p.name} style={{ background: i % 2 !== 0 ? "var(--surface-3)" : "transparent", borderBottom: "1px solid var(--border-dim)" }}>
                   <td className="px-4 py-3" style={{ fontFamily: "var(--font-code)", color: "var(--syn-fn)", fontWeight: 500 }}>{p.name}</td>
                   <td className="px-4 py-3" style={{ fontFamily: "var(--font-code)", color: "var(--syn-kw)" }}>{p.type}</td>
-                  <td className="px-4 py-3 text-[11px]" style={{ fontFamily: "var(--font-code)", color: "var(--text-muted)" }}>{p.required}</td>
+                  <td className="px-4 py-3 text-[11px]" style={{ fontFamily: "var(--font-code)", color: "var(--text-secondary)" }}>{p.required}</td>
                   <td className="px-4 py-3" style={{ color: "var(--text-secondary)" }} dangerouslySetInnerHTML={{ __html: p.desc }} />
                 </tr>
               ))}
@@ -178,7 +192,12 @@ function ClassSection({ icon, name, desc, tags, methods }: { icon: React.ReactNo
             </Card.Description>
             <div className="flex gap-2 flex-wrap">
               {tags.map(t => (
-                <Chip key={t} size="sm" variant="secondary" className="font-mono text-[10px]">{t}</Chip>
+                <span key={t} className="font-mono text-[10px] px-2 py-0.5 rounded"
+                  style={{
+                    background: "rgba(255,255,255,0.07)",
+                    color: "var(--text-secondary)",
+                    border: "1px solid var(--border-std)",
+                  }}>{t}</span>
               ))}
             </div>
           </div>
@@ -325,9 +344,10 @@ export default function Home() {
                     key={`${item.id}-${item.label}-${i}`}
                     className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-all duration-100"
                     style={{ borderBottom: i < searchResults.length - 1 ? "1px solid var(--border-dim)" : "none", cursor: "pointer" }}
+                    onMouseDown={e => e.preventDefault()}
                     onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = "var(--surface-2)"}
                     onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = "transparent"}
-                    onClick={() => navTo(item.id, (item as any).anchor)}
+                    onClick={() => { navTo(item.id, (item as any).anchor); setSearchFocused(false); }}
                   >
                     <span style={{ color: "var(--accent)", flexShrink: 0 }}>
                       {NAV_ICONS[item.id] ?? <ChevronRight size={12} />}
@@ -394,11 +414,23 @@ export default function Home() {
                     </span>
                     <span className="flex-1 text-left">{item.label}</span>
                     {"chip" in item && item.chip && (
-                      <Chip size="sm" variant="soft"
-                        color={"chipType" in item && item.chipType === "async" ? "success" : "accent"}
-                        className="font-mono text-[9px] ml-auto shrink-0">
+                      <span
+                        className="font-mono text-[9px] ml-auto shrink-0 px-1.5 py-0.5 rounded"
+                        style={{
+                          background: "chipType" in item && item.chipType === "async"
+                            ? "rgba(134,239,172,0.15)"
+                            : "rgba(255,255,255,0.08)",
+                          color: "chipType" in item && item.chipType === "async"
+                            ? "#86efac"
+                            : "var(--text-secondary)",
+                          border: "1px solid",
+                          borderColor: "chipType" in item && item.chipType === "async"
+                            ? "rgba(134,239,172,0.25)"
+                            : "var(--border-std)",
+                        }}
+                      >
                         {item.chip as string}
-                      </Chip>
+                      </span>
                     )}
                   </Button>
                 );
@@ -592,7 +624,14 @@ export default function Home() {
                       <Card.Title style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: "13.5px", color: "var(--text-primary)" }}>
                         {iface.name}
                       </Card.Title>
-                      <Chip size="sm" variant="secondary" className="font-mono text-[9px] ml-auto">interface</Chip>
+                      <span
+                        className="font-mono text-[9px] ml-auto px-1.5 py-0.5 rounded"
+                        style={{
+                          background: "rgba(255,255,255,0.07)",
+                          color: "var(--text-secondary)",
+                          border: "1px solid var(--border-std)",
+                        }}
+                      >interface</span>
                     </Card.Header>
                     <Card.Content className="px-4 py-2">
                       {iface.props.map(prop => (
