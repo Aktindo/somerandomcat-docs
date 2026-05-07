@@ -4,14 +4,10 @@ import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "some-random-cat · Documentation",
-  description: "A lightweight TypeScript library for generating random content — cats, dogs, jokes, memes, advice, facts, and more.",
+  description: "A lightweight TypeScript library for generating random content.",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
       <body>

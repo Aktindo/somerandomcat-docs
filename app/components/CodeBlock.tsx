@@ -1,10 +1,9 @@
 "use client";
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
+import { Button } from "@heroui/react";
 
-export default function CodeBlock({
-  code, lang = "javascript", showCopy = true,
-}: { code: string; lang?: string; showCopy?: boolean }) {
+export default function CodeBlock({ code, lang = "javascript", showCopy = true }: { code: string; lang?: string; showCopy?: boolean }) {
   const [copied, setCopied] = useState(false);
   const copy = () => {
     navigator.clipboard.writeText(code.replace(/<[^>]*>/g, "")).then(() => {
@@ -13,18 +12,18 @@ export default function CodeBlock({
     });
   };
   return (
-    <div className="rounded-xl overflow-hidden" style={{ background: "var(--code-bg)", border: "1px solid var(--border)" }}>
-      <div className="flex items-center justify-between px-4 py-2" style={{ borderBottom: "1px solid var(--border)" }}>
-        <span className="font-mono text-[10px] uppercase tracking-wider" style={{ color: "var(--muted)" }}>{lang}</span>
+    <div className="rounded-xl overflow-hidden" style={{ background: "var(--surface-0)", border: "1px solid var(--border-dim)" }}>
+      <div className="flex items-center justify-between px-4 py-2" style={{ borderBottom: "1px solid var(--border-dim)" }}>
+        <span style={{ fontFamily: "var(--font-code)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)" }}>
+          {lang}
+        </span>
         {showCopy && (
-          <button onClick={copy}
-            className="flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-mono transition-colors duration-150"
-            style={{ background: "transparent", border: "none", cursor: "pointer", color: copied ? "var(--green)" : "var(--muted)" }}
-            onMouseEnter={e => { if (!copied)(e.currentTarget as HTMLElement).style.color = "var(--text)"; }}
-            onMouseLeave={e => { if (!copied)(e.currentTarget as HTMLElement).style.color = "var(--muted)"; }}>
+          <Button size="sm" variant="ghost" className="gap-1.5 font-mono text-[10px] h-6 min-h-0 px-2"
+            style={{ color: copied ? "var(--syn-str)" : "var(--text-muted)" }}
+            onClick={copy}>
             {copied ? <Check size={11} /> : <Copy size={11} />}
             {copied ? "copied" : "copy"}
-          </button>
+          </Button>
         )}
       </div>
       <pre dangerouslySetInnerHTML={{ __html: code }} />

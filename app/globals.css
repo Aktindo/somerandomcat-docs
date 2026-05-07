@@ -1,64 +1,74 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:ital,wght@0,400;0,500;0,600;1,400&family=Geist+Mono:wght@400;500&display=swap');
+/* Self-hosted fonts via @fontsource — no network needed */
+@import "@fontsource/montserrat/600.css";
+@import "@fontsource/montserrat/700.css";
+@import "@fontsource/montserrat/800.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/geist-mono/400.css";
+@import "@fontsource/geist-mono/500.css";
+
 @import "tailwindcss";
 @import "@heroui/styles/css";
 @source "../node_modules/@heroui/react/dist";
 
 :root {
-  --bg:       #0c0c0f;
-  --bg2:      #111115;
-  --bg3:      #18181e;
-  --bg4:      #1f1f27;
-  --border:   #252530;
-  --border2:  #2e2e3c;
+  --font-heading: 'Montserrat', system-ui, sans-serif;
+  --font-body:    'Inter', system-ui, sans-serif;
+  --font-code:    'Geist Mono', 'Courier New', monospace;
 
-  --violet:   #6d5ce7;
-  --green:    #22c55e;
-  --sky:      #38bdf8;
-  --amber:    #f59e0b;
+  --surface-0:  #0c0c0f;
+  --surface-1:  #111115;
+  --surface-2:  #17171c;
+  --surface-3:  #1e1e25;
+  --border-dim: #252530;
+  --border-std: #2e2e3c;
 
-  --text:     #f0f0f5;
-  --text2:    #a8a8be;
-  --muted:    #606075;
-  --subtle:   #2e2e3c;
+  --text-primary:   #f0f0f5;
+  --text-secondary: #a0a0b8;
+  --text-muted:     #5a5a72;
 
-  --code-bg:  #090910;
+  --syn-kw:  #a78bfa;
+  --syn-fn:  #7dd3fc;
+  --syn-str: #86efac;
+  --syn-cm:  #38384e;
 }
 
 html { scroll-behavior: smooth; }
 
 body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
+  background: var(--surface-0);
+  color: var(--text-primary);
+  font-family: var(--font-body);
   font-size: 14.5px;
   line-height: 1.7;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
+h1, h2, h3, h4 { font-family: var(--font-heading); }
+
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+::-webkit-scrollbar-thumb { background: var(--border-std); border-radius: 99px; }
 
-/* syntax */
-.kw  { color: #a78bfa; }
-.fn  { color: #7dd3fc; }
-.str { color: #86efac; }
-.cm  { color: #3a3a50; font-style: italic; }
-.nb  { color: #e2e2f0; }
+.kw  { color: var(--syn-kw); }
+.fn  { color: var(--syn-fn); }
+.str { color: var(--syn-str); }
+.cm  { color: var(--syn-cm); font-style: italic; }
+.nb  { color: #d4d4e8; }
 
 pre {
   padding: 18px 20px;
   overflow-x: auto;
-  font-family: 'Geist Mono', monospace;
+  font-family: var(--font-code);
   font-size: 12.5px;
   line-height: 1.85;
   color: #d4d4e8;
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.fade-up { animation: fadeUp 0.3s ease both; }
+.fade-up { animation: fadeUp 0.28s ease both; }
