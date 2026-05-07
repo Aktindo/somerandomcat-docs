@@ -1,28 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Inter:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:ital,wght@0,400;0,500;0,600;1,400&family=Geist+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 @import "@heroui/styles/css";
-
 @source "../node_modules/@heroui/react/dist";
 
 :root {
-  --bg:      #0d0d14;
-  --bg2:     #11111c;
-  --bg3:     #17172a;
-  --bg4:     #1e1e32;
-  --border:  rgba(140, 120, 255, 0.1);
-  --border2: rgba(140, 120, 255, 0.18);
+  --bg:       #0c0c0f;
+  --bg2:      #111115;
+  --bg3:      #18181e;
+  --bg4:      #1f1f27;
+  --border:   #252530;
+  --border2:  #2e2e3c;
 
-  --violet:  #7c6fff;
-  --violet2: #a78bfa;
-  --pink:    #f472b6;
-  --sky:     #38bdf8;
-  --green:   #4ade80;
+  --violet:   #6d5ce7;
+  --green:    #22c55e;
+  --sky:      #38bdf8;
+  --amber:    #f59e0b;
 
-  --text:    #eeeef8;
-  --muted:   #6e6e8a;
-  --subtle:  #3a3a52;
+  --text:     #f0f0f5;
+  --text2:    #a8a8be;
+  --muted:    #606075;
+  --subtle:   #2e2e3c;
 
-  --code-bg: #0a0a12;
+  --code-bg:  #090910;
 }
 
 html { scroll-behavior: smooth; }
@@ -31,22 +30,23 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: 'Inter', sans-serif;
-  font-size: 15px;
+  font-size: 14.5px;
   line-height: 1.7;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
-::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--subtle); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: var(--violet); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
-/* syntax highlight */
-.kw  { color: var(--violet2); }
-.fn  { color: var(--sky); }
-.str { color: var(--green); }
-.cm  { color: #44445a; font-style: italic; }
-.nb  { color: #c8c8e0; }
+/* syntax */
+.kw  { color: #a78bfa; }
+.fn  { color: #7dd3fc; }
+.str { color: #86efac; }
+.cm  { color: #3a3a50; font-style: italic; }
+.nb  { color: #e2e2f0; }
 
 pre {
   padding: 18px 20px;
@@ -54,17 +54,11 @@ pre {
   font-family: 'Geist Mono', monospace;
   font-size: 12.5px;
   line-height: 1.85;
-  color: #c8c8e0;
+  color: #d4d4e8;
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.fade-up { animation: fadeUp 0.35s cubic-bezier(.22,.68,0,1.2) both; }
-
-/* subtle dot grid for hero */
-.dot-grid {
-  background-image: radial-gradient(circle, rgba(124,111,255,0.12) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
+.fade-up { animation: fadeUp 0.3s ease both; }
