@@ -32,6 +32,36 @@
   --syn-fn:  #7dd3fc;
   --syn-str: #86efac;
   --syn-cm:  #38384e;
+
+  --accent:        #f5c400;
+  --accent-hover:  #f0b800;
+  --accent-text:   #000;
+  --accent-soft:   rgba(245, 196, 0, 0.12);
+  --accent-border: rgba(245, 196, 0, 0.25);
+}
+
+html.light {
+  --surface-0:  #f5f5f7;
+  --surface-1:  #ffffff;
+  --surface-2:  #f0f0f4;
+  --surface-3:  #e8e8ee;
+  --border-dim: #e0e0e8;
+  --border-std: #d0d0da;
+
+  --text-primary:   #111118;
+  --text-secondary: #5a5a72;
+  --text-muted:     #9898b0;
+
+  --syn-kw:  #7c3aed;
+  --syn-fn:  #0369a1;
+  --syn-str: #166534;
+  --syn-cm:  #9ca3af;
+
+  --accent:        #c49800;
+  --accent-hover:  #a88200;
+  --accent-text:   #000;
+  --accent-soft:   rgba(196, 152, 0, 0.1);
+  --accent-border: rgba(196, 152, 0, 0.3);
 }
 
 html { scroll-behavior: smooth; }
@@ -44,6 +74,7 @@ body {
   line-height: 1.7;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  transition: background 0.2s ease, color 0.15s ease;
 }
 
 h1, h2, h3, h4 { font-family: var(--font-heading); }
@@ -56,7 +87,7 @@ h1, h2, h3, h4 { font-family: var(--font-heading); }
 .fn  { color: var(--syn-fn); }
 .str { color: var(--syn-str); }
 .cm  { color: var(--syn-cm); font-style: italic; }
-.nb  { color: #d4d4e8; }
+.nb  { color: var(--text-primary); opacity: 0.9; }
 
 pre {
   padding: 18px 20px;
@@ -64,7 +95,7 @@ pre {
   font-family: var(--font-code);
   font-size: 12.5px;
   line-height: 1.85;
-  color: #d4d4e8;
+  color: var(--text-primary);
 }
 
 @keyframes fadeUp {

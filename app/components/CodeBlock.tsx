@@ -12,7 +12,7 @@ export default function CodeBlock({ code, lang = "javascript", showCopy = true }
     });
   };
   return (
-    <div className="rounded-xl overflow-hidden" style={{ background: "var(--surface-0)", border: "1px solid var(--border-dim)" }}>
+    <div className="rounded-xl overflow-hidden" style={{ background: "var(--surface-2)", border: "1px solid var(--border-dim)" }}>
       <div className="flex items-center justify-between px-4 py-2" style={{ borderBottom: "1px solid var(--border-dim)" }}>
         <span style={{ fontFamily: "var(--font-code)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)" }}>
           {lang}

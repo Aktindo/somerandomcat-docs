@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Button, Card, Chip, ScrollShadow, Separator } from "@heroui/react";
 import {
   BookOpen, Braces, Shuffle, Wand2, Wrench,
@@ -8,6 +8,7 @@ import {
   Image, Lightbulb, Zap, Hash, Check, Copy,
   Code2, FileCode, ChevronRight, MessageCircle,
   Layers, Globe, Dices, GitBranch, ArrowRight,
+  Sun, Moon, Search, X,
 } from "lucide-react";
 import CodeBlock from "./components/CodeBlock";
 import { navSections, interfaces, randomMethods, generationMethods, utilMethods } from "./data";
@@ -21,6 +22,18 @@ const NAV_ICONS: Record<string, React.ReactNode> = {
   "generation":      <Wand2 size={14} />,
   "util":            <Wrench size={14} />,
 };
+
+// All searchable items
+const ALL_ITEMS = [
+  { id: "getting-started" as SectionId, label: "Getting Started", section: "Overview" },
+  { id: "interfaces" as SectionId, label: "Interfaces", section: "Overview" },
+  { id: "random" as SectionId, label: "Random", section: "Classes" },
+  { id: "generation" as SectionId, label: "Generation", section: "Classes" },
+  { id: "util" as SectionId, label: "Util", section: "Classes" },
+  ...randomMethods.map(m => ({ id: "random" as SectionId, label: m.name, section: "Random", anchor: m.name })),
+  ...generationMethods.map(m => ({ id: "generation" as SectionId, label: m.name, section: "Generation", anchor: m.name })),
+  ...utilMethods.map(m => ({ id: "util" as SectionId, label: m.name, section: "Util", anchor: m.name })),
+];
 
 // ─── SectionHeader ──────────────────────────────────────────────────────────
 function SectionHeader({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
@@ -42,10 +55,61 @@ function SectionHeader({ icon, title, desc }: { icon: React.ReactNode; title: st
   );
 }
 
+// ─── FunctionIndex ────────────────────────────────────────────────────────────
+function FunctionIndex({ methods }: { methods: any[] }) {
+  const scrollTo = (name: string) => {
+    const el = document.getElementById(`fn-${name}`);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  return (
+    <div className="mb-8 rounded-xl overflow-hidden fade-up"
+      style={{ background: "var(--surface-2)", border: "1px solid var(--border-std)" }}>
+      <div className="px-4 py-2.5 flex items-center gap-2"
+        style={{ borderBottom: "1px solid var(--border-dim)" }}>
+        <Hash size={12} style={{ color: "var(--accent)" }} />
+        <span style={{ fontFamily: "var(--font-code)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)" }}>
+          Functions in this section
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-2 p-3">
+        {methods.map(m => (
+          <button
+            key={m.name}
+            onClick={() => scrollTo(m.name)}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[12px] transition-all duration-150 cursor-pointer"
+            style={{
+              fontFamily: "var(--font-code)",
+              background: "var(--surface-3)",
+              border: "1px solid var(--border-dim)",
+              color: "var(--syn-fn)",
+              fontWeight: 500,
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--accent-border)";
+              (e.currentTarget as HTMLButtonElement).style.background = "var(--accent-soft)";
+              (e.currentTarget as HTMLButtonElement).style.color = "var(--accent)";
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border-dim)";
+              (e.currentTarget as HTMLButtonElement).style.background = "var(--surface-3)";
+              (e.currentTarget as HTMLButtonElement).style.color = "var(--syn-fn)";
+            }}
+          >
+            <span style={{ color: "var(--text-muted)", fontSize: "10px" }}>{m.modifier?.includes("async") ? "async" : m.modifier || "fn"}</span>
+            {m.name}
+            <ChevronRight size={10} style={{ opacity: 0.4 }} />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── MethodBlock ─────────────────────────────────────────────────────────────
 function MethodBlock({ modifier, name, params, returns, desc, params_table, code, lang = "javascript" }: any) {
   return (
-    <div className="px-6 py-6" style={{ borderBottom: "1px solid var(--border-dim)" }}>
+    <div id={`fn-${name}`} className="px-6 py-6" style={{ borderBottom: "1px solid var(--border-dim)", scrollMarginTop: "24px" }}>
       {/* signature */}
       <div className="flex flex-wrap items-center gap-2 mb-3">
         {modifier && (
@@ -77,7 +141,7 @@ function MethodBlock({ modifier, name, params, returns, desc, params_table, code
             </thead>
             <tbody>
               {params_table.map((p: any, i: number) => (
-                <tr key={p.name} style={{ background: i % 2 !== 0 ? "rgba(255,255,255,0.015)" : "transparent", borderBottom: "1px solid var(--border-dim)" }}>
+                <tr key={p.name} style={{ background: i % 2 !== 0 ? "var(--surface-2)" : "transparent", borderBottom: "1px solid var(--border-dim)" }}>
                   <td className="px-4 py-3" style={{ fontFamily: "var(--font-code)", color: "var(--syn-fn)", fontWeight: 500 }}>{p.name}</td>
                   <td className="px-4 py-3" style={{ fontFamily: "var(--font-code)", color: "var(--syn-kw)" }}>{p.type}</td>
                   <td className="px-4 py-3 text-[11px]" style={{ fontFamily: "var(--font-code)", color: "var(--text-muted)" }}>{p.required}</td>
@@ -97,30 +161,33 @@ function MethodBlock({ modifier, name, params, returns, desc, params_table, code
 // ─── ClassSection ─────────────────────────────────────────────────────────────
 function ClassSection({ icon, name, desc, tags, methods }: { icon: React.ReactNode; name: string; desc: string; tags: string[]; methods: any[] }) {
   return (
-    <Card variant="default" className="mb-8 overflow-hidden fade-up" style={{ background: "var(--surface-1)", border: "1px solid var(--border-std)" }}>
-      <Card.Header className="flex items-start gap-4 px-6 py-5" style={{ background: "var(--surface-2)", borderBottom: "1px solid var(--border-std)" }}>
-        <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-          style={{ background: "var(--surface-3)", border: "1px solid var(--border-std)", color: "var(--accent)" }}>
-          {icon}
-        </div>
-        <div>
-          <Card.Title style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: "15px", color: "var(--text-primary)", marginBottom: "4px" }}>
-            {name}
-          </Card.Title>
-          <Card.Description style={{ color: "var(--text-secondary)", fontSize: "13px", marginBottom: "10px" }}>
-            {desc}
-          </Card.Description>
-          <div className="flex gap-2 flex-wrap">
-            {tags.map(t => (
-              <Chip key={t} size="sm" variant="secondary" className="font-mono text-[10px]">{t}</Chip>
-            ))}
+    <>
+      <FunctionIndex methods={methods} />
+      <Card variant="default" className="mb-8 overflow-hidden fade-up" style={{ background: "var(--surface-1)", border: "1px solid var(--border-std)" }}>
+        <Card.Header className="flex items-start gap-4 px-6 py-5" style={{ background: "var(--surface-2)", borderBottom: "1px solid var(--border-std)" }}>
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ background: "var(--surface-3)", border: "1px solid var(--border-std)", color: "var(--accent)" }}>
+            {icon}
           </div>
-        </div>
-      </Card.Header>
-      <Card.Content className="p-0">
-        {methods.map(m => <MethodBlock key={m.name} {...m} />)}
-      </Card.Content>
-    </Card>
+          <div>
+            <Card.Title style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: "15px", color: "var(--text-primary)", marginBottom: "4px" }}>
+              {name}
+            </Card.Title>
+            <Card.Description style={{ color: "var(--text-secondary)", fontSize: "13px", marginBottom: "10px" }}>
+              {desc}
+            </Card.Description>
+            <div className="flex gap-2 flex-wrap">
+              {tags.map(t => (
+                <Chip key={t} size="sm" variant="secondary" className="font-mono text-[10px]">{t}</Chip>
+              ))}
+            </div>
+          </div>
+        </Card.Header>
+        <Card.Content className="p-0">
+          {methods.map(m => <MethodBlock key={m.name} {...m} />)}
+        </Card.Content>
+      </Card>
+    </>
   );
 }
 
@@ -129,6 +196,24 @@ export default function Home() {
   const [active, setActive] = useState<SectionId>("getting-started");
   const [installCopied, setInstallCopied] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isDark, setIsDark] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  // Toggle light/dark
+  const toggleTheme = () => {
+    setIsDark(prev => {
+      const next = !prev;
+      document.documentElement.classList.toggle("light", !next);
+      document.documentElement.classList.toggle("dark", next);
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    document.documentElement.classList.add("dark");
+  }, []);
 
   const copyInstall = () => {
     navigator.clipboard.writeText("npm install some-random-cat").then(() => {
@@ -137,12 +222,30 @@ export default function Home() {
     });
   };
 
-  const navTo = (id: SectionId) => { setActive(id); setMobileOpen(false); };
+  const navTo = (id: SectionId, anchor?: string) => {
+    setActive(id);
+    setMobileOpen(false);
+    setSearchQuery("");
+    if (anchor) {
+      setTimeout(() => {
+        const el = document.getElementById(`fn-${anchor}`);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
+    }
+  };
+
+  // Search results
+  const searchResults = searchQuery.trim().length > 0
+    ? ALL_ITEMS.filter(item =>
+        item.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.section.toLowerCase().includes(searchQuery.toLowerCase())
+      ).slice(0, 8)
+    : [];
 
   return (
     <div className="flex min-h-screen" style={{ background: "var(--surface-0)" }}>
 
-      {/* ══ SIDEBAR — sticky, full height ══════════════════════════════ */}
+      {/* ══ SIDEBAR ══════════════════════════════════════════════════ */}
       <aside
         className={`
           fixed top-0 left-0 z-40 h-screen w-[252px] flex flex-col
@@ -152,17 +255,100 @@ export default function Home() {
         `}
         style={{ background: "var(--surface-1)", borderRight: "1px solid var(--border-dim)" }}
       >
-        {/* logo */}
+        {/* logo + theme toggle */}
         <div className="flex items-center gap-3 px-5 py-5 shrink-0" style={{ borderBottom: "1px solid var(--border-dim)" }}>
           <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-            style={{ background: "var(--accent)", color: "#fff" }}>
+            style={{ background: "var(--accent)", color: "#000" }}>
             <Cat size={15} />
           </div>
-          <div>
+          <div className="flex-1">
             <p style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: "13px", color: "var(--text-primary)", lineHeight: 1.2 }}>
               some-random-cat
             </p>
             <span style={{ fontFamily: "var(--font-code)", fontSize: "10px", color: "var(--text-muted)" }}>v2.4.0</span>
+          </div>
+          <button
+            onClick={toggleTheme}
+            className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-all duration-150"
+            style={{
+              background: "var(--surface-3)",
+              border: "1px solid var(--border-std)",
+              color: "var(--text-muted)",
+              cursor: "pointer",
+            }}
+            title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {isDark ? <Sun size={13} /> : <Moon size={13} />}
+          </button>
+        </div>
+
+        {/* search */}
+        <div className="px-3 py-3 shrink-0" style={{ borderBottom: "1px solid var(--border-dim)" }}>
+          <div className="relative">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+              <Search size={12} style={{ color: "var(--text-muted)" }} />
+            </div>
+            <input
+              ref={searchRef}
+              type="text"
+              placeholder="Search docs..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
+              className="w-full pl-8 pr-7 py-2 rounded-lg text-[12.5px] outline-none transition-all"
+              style={{
+                background: "var(--surface-2)",
+                border: `1px solid ${searchFocused ? "var(--accent-border)" : "var(--border-dim)"}`,
+                color: "var(--text-primary)",
+                fontFamily: "var(--font-body)",
+              }}
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2"
+                style={{ color: "var(--text-muted)", cursor: "pointer" }}
+              >
+                <X size={11} />
+              </button>
+            )}
+
+            {/* Search dropdown */}
+            {searchResults.length > 0 && searchFocused && (
+              <div
+                className="absolute top-full left-0 right-0 mt-1 rounded-xl overflow-hidden z-50 shadow-lg"
+                style={{ background: "var(--surface-1)", border: "1px solid var(--border-std)" }}
+              >
+                {searchResults.map((item, i) => (
+                  <button
+                    key={`${item.id}-${item.label}-${i}`}
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-all duration-100"
+                    style={{ borderBottom: i < searchResults.length - 1 ? "1px solid var(--border-dim)" : "none", cursor: "pointer" }}
+                    onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.background = "var(--surface-2)"}
+                    onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.background = "transparent"}
+                    onClick={() => navTo(item.id, (item as any).anchor)}
+                  >
+                    <span style={{ color: "var(--accent)", flexShrink: 0 }}>
+                      {NAV_ICONS[item.id] ?? <ChevronRight size={12} />}
+                    </span>
+                    <span style={{ fontFamily: "var(--font-code)", fontSize: "12px", color: "var(--text-primary)", flex: 1 }}>
+                      {item.label}
+                    </span>
+                    <span style={{ fontFamily: "var(--font-body)", fontSize: "10px", color: "var(--text-muted)", flexShrink: 0 }}>
+                      {item.section}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {searchQuery && searchResults.length === 0 && searchFocused && (
+              <div className="absolute top-full left-0 right-0 mt-1 rounded-xl px-3 py-3 text-center"
+                style={{ background: "var(--surface-1)", border: "1px solid var(--border-std)" }}>
+                <span style={{ fontSize: "12px", color: "var(--text-muted)", fontFamily: "var(--font-body)" }}>No results for "{searchQuery}"</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -198,6 +384,8 @@ export default function Home() {
                       color: isActive ? "var(--text-primary)" : "var(--text-muted)",
                       fontFamily: "var(--font-body)",
                       fontWeight: isActive ? 500 : 400,
+                      background: isActive ? "var(--accent-soft)" : undefined,
+                      borderColor: isActive ? "var(--accent-border)" : undefined,
                     }}
                     onClick={() => navTo(item.id as SectionId)}
                   >
@@ -244,63 +432,70 @@ export default function Home() {
               some-random-cat
             </span>
           </div>
-          <Button size="sm" variant="outline" onClick={() => setMobileOpen(true)}>Menu</Button>
-        </div>
-
-        {/* ── HERO ──────────────────────────────────────────────────── */}
-        <div className="px-8 md:px-14 pt-14 pb-12 shrink-0" style={{ borderBottom: "1px solid var(--border-dim)" }}>
-          <div className="flex items-center gap-2 mb-6">
-            <Chip size="sm" variant="secondary" className="font-mono">npm package</Chip>
-            <Chip size="sm" variant="soft" color="success" className="font-mono">v2.4.0 stable</Chip>
-          </div>
-
-          <h1 style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: "clamp(28px, 5vw, 48px)", letterSpacing: "-0.04em", lineHeight: 1.1, color: "var(--text-primary)", marginBottom: "14px" }}>
-            some-random-cat
-          </h1>
-
-          <p style={{ color: "var(--text-secondary)", fontSize: "15px", maxWidth: "460px", lineHeight: 1.85, marginBottom: "28px" }}>
-            A lightweight TypeScript library for generating random content — cats, dogs, jokes, memes, advice, facts, and more.
-          </p>
-
-          {/* feature chips */}
-          <div className="flex flex-wrap gap-2 mb-10">
-            {[
-              { icon: <Cat size={13} />,           label: "Cat images" },
-              { icon: <Dog size={13} />,           label: "Dog images" },
-              { icon: <Laugh size={13} />,         label: "Jokes" },
-              { icon: <Image size={13} />,         label: "Memes" },
-              { icon: <Lightbulb size={13} />,     label: "Advice" },
-              { icon: <MessageCircle size={13} />, label: "Topics" },
-              { icon: <Hash size={13} />,          label: "UUID gen" },
-              { icon: <Zap size={13} />,           label: "TypeScript" },
-            ].map(({ icon, label }) => (
-              <span key={label} className="inline-flex items-center gap-1.5 text-[12.5px] font-medium px-3 py-1.5 rounded-lg"
-                style={{ background: "var(--surface-2)", border: "1px solid var(--border-std)", color: "var(--text-secondary)" }}>
-                <span style={{ color: "var(--accent)" }}>{icon}</span>
-                {label}
-              </span>
-            ))}
-          </div>
-
-          {/* install */}
-          <div className="inline-flex items-center gap-3 px-4 py-2.5 rounded-xl max-w-full"
-            style={{ background: "var(--surface-2)", border: "1px solid var(--border-std)" }}>
-            <Code2 size={14} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
-            <code style={{ fontFamily: "var(--font-code)", fontSize: "13px", color: "var(--text-primary)" }}>
-              npm install some-random-cat
-            </code>
-            <Button
-              size="sm"
-              variant={installCopied ? "secondary" : "outline"}
-              className="shrink-0 font-mono text-[11px] gap-1.5"
-              onClick={copyInstall}
-              style={{ color: installCopied ? "var(--syn-str)" : undefined }}
-            >
-              {installCopied ? <Check size={11} /> : <Copy size={11} />}
-              {installCopied ? "Copied" : "Copy"}
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={toggleTheme}>
+              {isDark ? <Sun size={13} /> : <Moon size={13} />}
             </Button>
+            <Button size="sm" variant="outline" onClick={() => setMobileOpen(true)}>Menu</Button>
           </div>
         </div>
+
+        {/* ── HERO — only on getting-started ──────────────────────── */}
+        {active === "getting-started" && (
+          <div className="px-8 md:px-14 pt-14 pb-12 shrink-0" style={{ borderBottom: "1px solid var(--border-dim)" }}>
+            <div className="flex items-center gap-2 mb-6">
+              <Chip size="sm" variant="secondary" className="font-mono">npm package</Chip>
+              <Chip size="sm" variant="soft" color="success" className="font-mono">v2.4.0 stable</Chip>
+            </div>
+
+            <h1 style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: "clamp(28px, 5vw, 48px)", letterSpacing: "-0.04em", lineHeight: 1.1, color: "var(--text-primary)", marginBottom: "14px" }}>
+              some-random-cat
+            </h1>
+
+            <p style={{ color: "var(--text-secondary)", fontSize: "15px", maxWidth: "460px", lineHeight: 1.85, marginBottom: "28px" }}>
+              A lightweight TypeScript library for generating random content — cats, dogs, jokes, memes, advice, facts, and more.
+            </p>
+
+            {/* feature chips */}
+            <div className="flex flex-wrap gap-2 mb-10">
+              {[
+                { icon: <Cat size={13} />,           label: "Cat images" },
+                { icon: <Dog size={13} />,           label: "Dog images" },
+                { icon: <Laugh size={13} />,         label: "Jokes" },
+                { icon: <Image size={13} />,         label: "Memes" },
+                { icon: <Lightbulb size={13} />,     label: "Advice" },
+                { icon: <MessageCircle size={13} />, label: "Topics" },
+                { icon: <Hash size={13} />,          label: "UUID gen" },
+                { icon: <Zap size={13} />,           label: "TypeScript" },
+              ].map(({ icon, label }) => (
+                <span key={label} className="inline-flex items-center gap-1.5 text-[12.5px] font-medium px-3 py-1.5 rounded-lg"
+                  style={{ background: "var(--surface-2)", border: "1px solid var(--border-std)", color: "var(--text-secondary)" }}>
+                  <span style={{ color: "var(--accent)" }}>{icon}</span>
+                  {label}
+                </span>
+              ))}
+            </div>
+
+            {/* install */}
+            <div className="inline-flex items-center gap-3 px-4 py-2.5 rounded-xl max-w-full"
+              style={{ background: "var(--surface-2)", border: "1px solid var(--border-std)" }}>
+              <Code2 size={14} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
+              <code style={{ fontFamily: "var(--font-code)", fontSize: "13px", color: "var(--text-primary)" }}>
+                npm install some-random-cat
+              </code>
+              <Button
+                size="sm"
+                variant={installCopied ? "secondary" : "outline"}
+                className="shrink-0 font-mono text-[11px] gap-1.5"
+                onClick={copyInstall}
+                style={{ color: installCopied ? "var(--syn-str)" : undefined }}
+              >
+                {installCopied ? <Check size={11} /> : <Copy size={11} />}
+                {installCopied ? "Copied" : "Copy"}
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* ── CONTENT ───────────────────────────────────────────────── */}
         <div className="px-8 md:px-14 pb-24 flex-1">
@@ -370,7 +565,7 @@ export default function Home() {
                   <Card key={f.title} variant="secondary" className="p-4 fade-up" style={{ animationDelay: `${i * 60}ms` }}>
                     <Card.Content className="p-0">
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-3"
-                        style={{ background: "var(--surface-3)", color: "var(--accent)" }}>
+                        style={{ background: "var(--accent-soft)", color: "var(--accent)", border: "1px solid var(--accent-border)" }}>
                         {f.icon}
                       </div>
                       <p style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: "12.5px", color: "var(--text-primary)", marginBottom: "5px" }}>{f.title}</p>
@@ -402,7 +597,7 @@ export default function Home() {
                     <Card.Content className="px-4 py-2">
                       {iface.props.map(prop => (
                         <div key={prop.key} className="flex items-baseline justify-between gap-3 py-2.5"
-                          style={{ borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
+                          style={{ borderBottom: "1px solid var(--border-dim)" }}>
                           <span style={{ fontFamily: "var(--font-code)", fontSize: "12.5px", color: "var(--text-primary)" }}>
                             {prop.key}{"optional" in prop && prop.optional && <span style={{ color: "var(--text-muted)" }}>?</span>}
                           </span>
